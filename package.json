@@ -1,5 +1,5 @@
 {
-  "name": "microservices-demo-front-end",
+  "name": "mogambo-front-end",
   "version": "0.0.3",
   "description": "Front end for microservices demo application.",
   "main": "server.js",
