@@ -18,7 +18,7 @@
     "create:build": "node_modules/.bin/mkdirp $npm_package_config_build",
     "clean": "npm run clean:build && npm run create:build && rimraf npm-debug.log",
     "precopy": "echo Copying $npm_package_config_service v\"$npm_package_version\" codebase to build folder",
-    "copy": "cp -R -L  ./node_modules ./*.json ./helpers ./api ./test ./scripts ./*.js  $npm_package_config_build",
+    "copy": "cp -R -L  ./node_modules ./public ./*.json ./helpers ./api ./test ./scripts ./*.js  $npm_package_config_build",
     "build": "npm run clean",
     "prepackage": "echo Packaging $npm_package_config_service v\"$npm_package_version\" service",
     "package": " npm run build && npm run copy",
