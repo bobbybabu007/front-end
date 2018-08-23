@@ -25,6 +25,7 @@ pipeline {
                 sh 'npm run package'
                 archiveArtifacts artifacts: '**/distribution/*.zip', fingerprint: true
             }
+       }
         stage('Deploy with Ansible') {
             steps {
                 echo 'Deploying with Ansible..'
