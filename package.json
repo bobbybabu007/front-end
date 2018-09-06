@@ -1,7 +1,8 @@
 {
   "name": "mogambo-front-end",
   "version": "0.7.2",
-  "description": "Front end for microservices demo application.",
+  "version": "0.0.1",
+  "description": "Front end for mogambo  application.",
   "main": "server.js",
   "config": {
     "service": "FRONTEND",
@@ -29,11 +30,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/weaveworks/microservices-demo"
+    "url": "https://github.com/udbc/front-end"
   },
   "contributors": [
     "Ian Crosby <ian.daniel.crosby@gmail.com>",
-    "Carlos León <mail@carlosleon.info> (carlosleon.info)"
+    "Carlos León <mail@carlosleon.info> (carlosleon.info)", 
+    "Gourav SHah <gouravshah@initcron.org>"
   ],
   "license": "MIT",
   "dependencies": {
