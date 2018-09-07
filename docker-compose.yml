@@ -2,9 +2,25 @@ version: "3.3"
 
 services: 
   frontend: 
-    build: .
-    image: gouravshah/frontend:v1
+    image: gouravshah/frontend:latest
     ports: 
       - 8079
 
+  catalogue: 
+    image: gouravshah/catalogue:latest
+    ports: 
+      - 80
+
+  catalogue-db: 
+    image: gouravshah/catalogue-db
+    environment:
+      - reschedule=on-node-failure
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_DATABASE=socksdb
+
+  carts: 
+    image: gouravshah/carts
+    ports: 
+      - 80
 
