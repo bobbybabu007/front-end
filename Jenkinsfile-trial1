@@ -46,7 +46,7 @@ pipeline {
       steps {
          echo 'Packaging..' 
          sh 'npm run package'
-         rchiveArtifacts artifacts: '**/distribution/*.zip', fingerprint: true
+         archiveArtifacts artifacts: '**/distribution/*.zip', fingerprint: true
       }
     }
 
@@ -62,20 +62,21 @@ pipeline {
         }
       }
       steps {
-        echo 'Docker Building Image..' 
-        sh 'npm run package'
-        archiveArtifacts artifacts: '**/distribution/*.zip', fingerprint: true
+        echo 'Docker Build Image..' 
+        script {
+          dockerImage = docker.build {IMAGE_LABEL}:{IMAGE_VERSION}
+        }
       }
     }
 
-      stage('5/5 - Push Docker Image') {
-        steps {
-          withCredentials([usernamePassword(credentialsId: 'bobsquad.jfrog', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
-            sh 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
-            sh 'docker tag {IMAGE_LABEL}:{IMAGE_VERSION} bobsquad.jfrog.io/{REPOSITORY_NAME}/project-{APPCODE}/project-{APPCODE}-{IMAGE_LABEL}:{IMAGE_VERSION}'
-            sh 'docker image push bobsquad.jfrog.io/{REPOSITORY_NAME}/project-{APPCODE}/project-{APPCODE}-{IMAGE_LABEL}:{IMAGE_VERSION}'
-          }
+    stage('5/5 - Push Docker Image') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'bobsquad.jfrog', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+          sh 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
+          sh 'docker tag {IMAGE_LABEL}:{IMAGE_VERSION} bobsquad.jfrog.io/{REPOSITORY_NAME}/project-{APPCODE}/project-{APPCODE}-{IMAGE_LABEL}:{IMAGE_VERSION}'
+          sh 'docker image push bobsquad.jfrog.io/{REPOSITORY_NAME}/project-{APPCODE}/project-{APPCODE}-{IMAGE_LABEL}:{IMAGE_VERSION}'
         }
       }
+    }
   }
 }
