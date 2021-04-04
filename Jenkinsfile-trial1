@@ -1,0 +1,81 @@
+pipeline {
+  agent {
+    docker { 
+        image 'node:14-alpine'        // Customizing the single container execution environment
+        label 'Build-Container'
+        args '-v $HOME/.m2:/root/.m2'
+    }
+  }
+  
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    disableConcurrentBuilds()
+    skipStagesAfterUnstable()
+  }
+
+  triggers {
+    pollSCM('H * * * *')
+  }
+
+  tools {
+    jdk 'java'
+    maven 'maven'
+    nodejs 'npm'
+    gradle 'gradle'
+    dockerTool 'docker'
+  }
+
+  stages{
+    stage('1/5- Checkout SCM'){
+      steps {
+        git url: 'https://github.com/bobbybabu007/front-end.git',
+        branch: 'feature/bobby-ocp',
+      }
+    }
+
+    stage('2/5 - Build FrontEnd'){
+//      agent { docker { image 'node:14-alpine' }}
+      steps {
+        echo 'Building..' 
+        sh 'npm install'
+      }
+    }
+
+    stage('3/5 - Package'){
+//      agent { docker { image 'node:14-alpine' }}
+      steps {
+         echo 'Packaging..' 
+         sh 'npm run package'
+         rchiveArtifacts artifacts: '**/distribution/*.zip', fingerprint: true
+      }
+    }
+
+    stage('4/5 - Create Docker Image'){
+      agent {                               
+        dockerfile {
+          filename 'Dockerfile'
+//          dir 'build'
+          label '{IMAGE_LABEL}'
+          additionalBuildArgs  '--build-arg version={IMAGE_VERSION}'
+          args '-v '**/distribution/:/tmp'
+          registryCredentialsId 'myPredefinedCredentialsInJenkins'
+        }
+      }
+      steps {
+        echo 'Docker Building Image..' 
+        sh 'npm run package'
+        archiveArtifacts artifacts: '**/distribution/*.zip', fingerprint: true
+      }
+    }
+
+      stage('5/5 - Push Docker Image') {
+        steps {
+          withCredentials([usernamePassword(credentialsId: 'bobsquad.jfrog', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+            sh 'docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}'
+            sh 'docker tag {IMAGE_LABEL}:{IMAGE_VERSION} bobsquad.jfrog.io/{REPOSITORY_NAME}/project-{APPCODE}/project-{APPCODE}-{IMAGE_LABEL}:{IMAGE_VERSION}'
+            sh 'docker image push bobsquad.jfrog.io/{REPOSITORY_NAME}/project-{APPCODE}/project-{APPCODE}-{IMAGE_LABEL}:{IMAGE_VERSION}'
+          }
+        }
+      }
+  }
+}
